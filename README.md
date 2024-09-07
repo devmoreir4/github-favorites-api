@@ -1,1 +1,1 @@
-# github-bookmarks-api
+# github-favorites-api
