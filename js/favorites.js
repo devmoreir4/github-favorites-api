@@ -23,12 +23,34 @@ export class Favorites {
         this.entries = JSON.parse(localStorage.getItem('@github-favorites:')) || []
     }
 
+    save() {
+        localStorage.setItem('@github-favorites:', JSON.stringify(this.entries))
+    }
+
+    async add(username) {
+        try {
+            const user = await GithubUser.search(username)
+
+            if(user.login === undefined) {
+                throw new Error('User not found!')
+            }
+
+            this.entries = [user, ...this.entries]
+            this.update()
+            this.save()
+
+        } catch (error) {
+            alert(error.message)
+        }
+    }
+
     delete(user) {
         const filteredEntries = this.entries
         .filter(entry => entry.login !== user.login)
 
         this.entries = filteredEntries
         this.update()
+        this.save()
     }
 }
 
@@ -39,6 +61,16 @@ export class FavoritesView extends Favorites {
         this.tbody = this.root.querySelector('table tbody')
 
         this.update()
+        this.onadd()
+    }
+
+    onadd() {
+        const addButton = this.root.querySelector('.search button')
+        addButton.onclick = () => {
+            const {value} = this.root.querySelector('.search input')
+
+            this.add(value)
+        }
     }
 
     update() {
